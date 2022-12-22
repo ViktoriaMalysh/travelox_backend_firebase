@@ -11,4 +11,7 @@ router.post("/sign-in", user.signIn);
 //localhost:8000/verify-token
 router.post("/verify-token", user.verifyToken);
 
+//localhost:8000/test
+router.post("/test", user.test);
+
 module.exports = router;
