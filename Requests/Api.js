@@ -1,126 +1,167 @@
 const axios = require("axios");
 const X_RapidAPI_Key = process.env.X_RapidAPI_Key;
+const X_RapidAPI_URL = process.env.X_RapidAPI_URL;
 
-module.exports.getTours = async function (req, res) {
-	try {
-		const config = req.body;
+module.exports.getTours = (req, res) => {
+  const data = req.body.data;
 
-		const response = await axios(config);
+  const options = {
+    method: "POST",
+    url: `${X_RapidAPI_URL}list`,
+    headers: {
+      "content-type": "application/json",
+      "X-RapidAPI-Key": String(X_RapidAPI_Key),
+      "X-RapidAPI-Host": "hotels4.p.rapidapi.com",
+    },
+    data: data,
+  };
 
-		const tours = response.data.data.body.searchResults.results;
-
-		res.status(200).json({ tours: tours });
-	} catch (err) {
-		console.log("Error: " + err);
-		res.status(500).json({ message: "Server have some problem" });
-	}
+  axios
+    .request(options)
+    .then((response) => {
+      console.log(response.data.data.propertySearch.properties)
+      res  
+        .status(200)
+        .json({ tours: response.data.data.propertySearch.properties });
+    })
+    .catch((error) => {
+      res.status(500).json({ message: error });
+    });
 };
 
-module.exports.getTour = async function (req, res) {
-	try {
-		const config = req.body;
-		const id = config.params.id;
+module.exports.getTour = (req, res) => {
+  const tour = req.body.tour;
 
-		const optionsGetPhoto = {
-			method: "get",
-			url: "https://hotels4.p.rapidapi.com/properties/get-hotel-photos",
-			params: { id: id },
-			headers: {   
-				"X-RapidAPI-Key": String(X_RapidAPI_Key),
-				"X-RapidAPI-Host": "hotels4.p.rapidapi.com",
-			},
-		};
+  const optionsGetReviews = {
+    method: "POST",
+    url: `${X_RapidAPI_URL}detail`,
+    headers: {
+      "content-type": "application/json",
+      "X-RapidAPI-Key": String(X_RapidAPI_Key),
+      "X-RapidAPI-Host": "hotels4.p.rapidapi.com",
+    },
+    data: {
+      currency: tour.currency,
+      eapid: 1,
+      locale: tour.locale,
+      siteId: 300000001,
+      propertyId: tour.propertyId,
+    },
+  };
 
-		const optionsGetReviews = {
-			method: "GET",
-			url: "https://hotels4.p.rapidapi.com/reviews/list",
-			params: { id: "1178275040", page: "1", loc: "en_US" },
-			headers: {
-				"X-RapidAPI-Key": X_RapidAPI_Key,
-				"X-RapidAPI-Host": "hotels4.p.rapidapi.com",
-			},
-		};
+  axios
+    .request(optionsGetReviews)
+    .then((response) => {
+      const images = response.data.data.propertyInfo.propertyGallery.images.map((item)=>{
+        return {
+          url: item.image.url,
+          description: item.image.description
+        }
+      })
+      console.log("[images]:", images)
 
-		const response = await axios(config);
+      const res = response.data.data.propertyInfo.summary;
+      const tourDetails = {
+        id: res.id,
+        name: res.name,
+        map: res.map,
+        rating: res.overview.propertyRating.rating,
+        city: res.location.address.city,
+        coordinates: [
+          res.location.coordinates.latitude,
+          res.location.coordinates.longitude,
+        ],
+        images: [],
+        image: res.staticImage.url,
+      };
+      res.status(200).json({ tourDetails: tourDetails });
+    })
+    .catch((error) => {
+      console.error(error);
+      res.status(500).json({ message: error });
+    });
 
-		const responseGetPhoto = await axios(optionsGetPhoto);
-		const responseGetReviews = await axios(optionsGetReviews);
+  // const responseGetReviews = await axios(optionsGetReviews);
 
-		const photos = responseGetPhoto.data.hotelImages.map((item) => {
-			var re = /{size}/gi;
-			var str = item.baseUrl;
-			var newstr = str.replace(re, "w");
-			return newstr;
-		});
+  // const ress = {
+  //   guestReviews: {
+  //     starRating: response.data.data.body.propertyDescription.starRating,
+  //     reviewsCount: response.data.data.body.guestReviews.brands.total,
+  //     reviews:
+  //       responseGetReviews.data.reviewData.guestReviewGroups.guestReviews
+  //         .reviews,
+  //   },
+  //   price: {
+  //     currentPrice:
+  //       response.data.data.body.propertyDescription.featuredPrice.currentPrice
+  //         .formatted,
+  //     oldPrice:
+  //       response.data.data.body.propertyDescription.featuredPrice.oldPrice,
+  //   }
+  //   roomTypes: response.data.data.body.propertyDescription.roomTypeNames,
 
-		const ress = {
-			hotelId: response.data.data.body.pdpHeader.hotelId,
-			photos: photos,
-			nameHotel: response.data.data.body.propertyDescription.name,
-			guestReviews: {
-				starRating: response.data.data.body.propertyDescription.starRating,
-				reviewsCount: response.data.data.body.guestReviews.brands.total,
-				reviews:
-					responseGetReviews.data.reviewData.guestReviewGroups.guestReviews
-						.reviews,
-			},
-			price: {
-				currentPrice:
-					response.data.data.body.propertyDescription.featuredPrice.currentPrice
-						.formatted,
-				oldPrice:
-					response.data.data.body.propertyDescription.featuredPrice.oldPrice,
-			},
-			countryName:
-				response.data.data.body.propertyDescription.address.countryName,
-			countryCode:
-				response.data.data.body.propertyDescription.address.countryCode,
-			cityName: response.data.data.body.propertyDescription.address.cityName,
-			fullAddress:
-				response.data.data.body.propertyDescription.address.fullAddress,
-			currencyCode: response.data.data.body.pdpHeader.currencyCode,
-			coordinates: _.values(response.data.data.body.pdpHeader.hotelLocation.coordinates),
-			roomTypes: response.data.data.body.propertyDescription.roomTypeNames,
-			postalCode:
-				response.data.data.body.propertyDescription.address.postalCode,
-		};
-
-		res.status(200).json({ tourDetails: ress });
-	} catch (err) {
-		console.log("Error: " + err);
-		res.status(500).json({ message: "Server have some problem" });
-	}
+  // };
 };
 
-module.exports.getMetaData = async function (req, res) {
-	try {
-		const config = req.body;
+// [not used]
 
-		const result = await axios(config);   
+// module.exports.getMetaData = (req, res) => {
+//   const options = {
+//     method: "GET",
+//     url: "https://hotels4.p.rapidapi.com/v2/get-meta-data",
+//     headers: {
+//       "X-RapidAPI-Key": String(X_RapidAPI_Key),
+//       "X-RapidAPI-Host": "hotels4.p.rapidapi.com",
+//     },
+//   };
 
-		const locale = result.data.map((item) => {
-			return { text: item.name, value: item.name, key: item.hcomLocale };
-		});
+//   axios
+//     .request(options)
+//     .then((response) => {
+//       console.log(response.data);
 
-		res.status(200).json({ locale: locale });
-	} catch (err) {
-		console.log("Error: " + err);
-		res.status(500).json({ message: "Server have some problem" });
-	}
-};
+//       const destination = result.data.map((item) => {
+//         return { text: item.name, value: item.name, key: item.hcomLocale };
+//       });
+
+//       res.status(200).json({ destination: destination });
+//     })
+//     .catch((error) => {
+//       // console.error(error);
+//       res.status(500).json({ message: error });
+//     });
+// };
 
 module.exports.getReviewsById = async function (req, res) {
-	try {
-		const config = req.body;
+  try {
+    const config = req.body;
 
-		const result = await axios(config);
+    const result = await axios(config);
 
-		const reviews =
-			result.data.reviewData.guestReviewGroups.guestReviews[0].reviews;
+    const reviews =
+      result.data.reviewData.guestReviewGroups.guestReviews[0].reviews;
 
-		res.status(200).json({ reviews: reviews });
-	} catch (err) {
-		console.log("Error: " + err);
-		res.status(500).json({ message: "Server have some problem" });
-	}
+    res.status(200).json({ reviews: reviews });
+  } catch (err) {
+    console.log("Error: " + err);
+    res.status(500).json({ message: "Server have some problem" });
+  }
 };
+
+// const a = {
+//   incoming: {
+//     readable: false,
+//     _eventsCount: 0,
+//     _maxListeners: undefined,
+
+//     params: {},
+//     query: {},
+
+//     body: {
+//       method: "get",
+//       url: "https://hotels4.p.rapidapi.com/properties/list",
+//       params: [Object],
+//       headers: [Object],
+//     },
+//   },
+// };

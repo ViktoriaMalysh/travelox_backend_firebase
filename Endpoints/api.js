@@ -6,12 +6,12 @@ const api = require("../Requests/Api");
 router.post("/get-tours", api.getTours); //
 
 //localhost:8000/api/get-tour
-router.post("/get-tour", api.getTour); //
+router.post("/get-tour", api.getTour); 
 
 //localhost:8000/api/get-meta-data
-router.post("/get-meta-data", api.getMetaData); //
+// router.post("/get-meta-data", api.getMetaData); // [not used]
 
 //localhost:8000/api/get-reviews
-router.post("/get-reviews", api.getReviewsById); //
+router.post("/get-reviews", api.getReviewsById); 
 
 module.exports = router;
