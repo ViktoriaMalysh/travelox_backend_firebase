@@ -14,4 +14,6 @@ router.post("/get-tour", api.getTour);
 //localhost:8000/api/get-reviews
 router.post("/get-reviews", api.getReviewsById); 
 
+router.post("/generate-pdf", api.generatePDF); 
+
 module.exports = router;

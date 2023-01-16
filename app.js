@@ -17,6 +17,10 @@ const api = require("./Endpoints/api");
 const user = require("./Endpoints/user");
 const reservation = require("./Endpoints/reservation"); 
 
+
+const PDFDocument = require('pdfkit');
+const doc = new PDFDocument;
+
 // const users = require('./route/users')
 // const admin = require('./route/admin')
 // const team = require('./route/team')
