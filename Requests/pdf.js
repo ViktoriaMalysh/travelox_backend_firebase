@@ -5,7 +5,7 @@ const dayjs = require("dayjs");
 module.exports.generatePDF = async function (req, res) {
   try {
     const params = {
-      country: "France",
+      country: "France",  
       nameHotel: "Travel Hotel",
       checkIn: "2023-01-10",
       checkOut: "2023-01-20",
