@@ -17,10 +17,10 @@ module.exports.generatePDF = async function (req, res) {
     doc.image("download.png", 0, 0, { width: 615, height: 615 });
 
     doc
-      .fontSize(40)
+      .fontSize(40)  
       .font("Helvetica-Bold")
       .fillColor("darkslategray")
-      .text(params.userName, {
+      .text(params.userName, { 
         align: "center",
         height: 100,
         baseline: -275,
