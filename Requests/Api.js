@@ -4,7 +4,7 @@ const X_RapidAPI_URL = process.env.X_RapidAPI_URL;
 
 module.exports.getTours = (req, res) => {
   const data = req.body.data;
-  console.log(data);
+
   const options = {
     method: "POST",
     url: `${X_RapidAPI_URL}list`,
@@ -19,7 +19,6 @@ module.exports.getTours = (req, res) => {
   axios
     .request(options)
     .then((response) => {
-      console.log(response.data.data.propertySearch.properties);
       res
         .status(200)
         .json({ tours: response.data.data.propertySearch.properties });
@@ -150,4 +149,3 @@ module.exports.getReviewsById = async function (req, res) {
     res.status(500).json({ message: "Server have some problem" });
   }
 };
-
