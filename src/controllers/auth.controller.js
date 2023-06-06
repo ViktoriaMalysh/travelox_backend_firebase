@@ -1,16 +1,7 @@
 const keys = require("../keys/keys");
-const { User, PaymentCards, UserPaymentCards } = require("../sequelize");
+const { User, PaymentCards, UserPaymentCards } = require("../models/sequelize");
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcrypt");
-
-module.exports.test = async function (req, res) {
-  try {
-    const email = req.body.email;
-    res.status(200).json({ email: email });
-  } catch (err) {
-    console.log("[Error]:", err);
-  }
-};
 
 module.exports.signUp = async function (req, res) {
   try {

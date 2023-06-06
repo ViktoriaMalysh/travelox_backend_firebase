@@ -4,7 +4,7 @@ const reviewsList = [
         reviewDbDate: "Aug 26, 2022",
         rating: "10.0",
         reviewer: {
-            name: "Peder",
+            name: "Peter",
         },
         badge: "Exceptional",
         description: "Great location and close to everything",
@@ -75,7 +75,7 @@ const reviewsList = [
     },
     {
         itineraryId: "8138169800954",
-        reviewDate: "Aug 20, 2018",
+        reviewDbDate: "Aug 20, 2018",
         rating: "4.0",
         reviewer: {
             name: "Henry",
@@ -85,7 +85,7 @@ const reviewsList = [
     },
     {
         itineraryId: "8138169800954",
-        reviewDate: "Jul 27, 2017",
+        reviewDbDate: "Jul 27, 2017",
         rating: "8.0",
         reviewer: {
             name: "Afra",
@@ -97,7 +97,7 @@ const reviewsList = [
 
     {
         itineraryId: "8138169800954",
-        reviewDate: "Jun 15, 2016",
+        reviewDbDate: "Jun 15, 2016",
         rating: "10.0",
         reviewer: {
             name: "Julia",

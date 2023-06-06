@@ -1,11 +1,10 @@
 const axios = require("axios");
-const { reviewsList } = require("../config");
+const { reviewsList } = require("../constants/config");
 const X_RapidAPI_Key = process.env.X_RapidAPI_Key;
 const X_RapidAPI_URL = process.env.X_RapidAPI_URL;
 
 module.exports.getTours = (req, res) => {
     const data = req.body.data;
-
     const options = {
         method: "POST",
         url: `${X_RapidAPI_URL}list`,
@@ -49,25 +48,6 @@ module.exports.getTour = async (req, res) => {
         data: data,
     };
 
-    const optionsGetReviews = {
-        method: "POST",
-        url: `https://hotels4.p.rapidapi.com/reviews/v3/list`,
-        headers: {
-            "content-type": "application/json",
-            "X-RapidAPI-Key": String(X_RapidAPI_Key),
-            "X-RapidAPI-Host": "hotels4.p.rapidapi.com",
-        },
-        data: {
-            currency: data.currency,
-            eapid: data.eapid,
-            locale: data.locale,
-            siteId: data.siteId,
-            propertyId: data.propertyId,
-            size: 10,
-            startingIndex: 0,
-        },
-    };
-
     try {
         result = await axios.request(optionsGetImages);
         images = result.data.data.propertyInfo.propertyGallery.images.map(
@@ -79,19 +59,6 @@ module.exports.getTour = async (req, res) => {
             }
         );
         result = result.data.data.propertyInfo.summary;
-
-        // reviews = await axios.request(optionsGetReviews);
-
-        // const totalCount =
-        //     reviews.data.data.propertyInfo.reviewInfo.summary.totalCount.raw;
-        // reviews = reviews.data.data.propertyInfo.reviewInfo.reviews.map(
-        //     (item) => {
-        //         return {
-        //             text: item.text,
-        //             submissionTimeLocalized: item.submissionTimeLocalized,
-        //         };
-        //     }
-        // );
 
         const tourDetails = {
             id: result.id,
@@ -168,18 +135,18 @@ module.exports.getTour = async (req, res) => {
 //     });
 // };
 
-module.exports.getReviewsById = async function (req, res) {
-    try {
-        const config = req.body;
+// module.exports.getReviewsById = async function (req, res) {
+//     try {
+//         const config = req.body;
 
-        const result = await axios(config);
+//         const result = await axios(config);
 
-        const reviews =
-            result.data.reviewData.guestReviewGroups.guestReviews[0].reviews;
+//         const reviews =
+//             result.data.reviewData.guestReviewGroups.guestReviews[0].reviews;
 
-        res.status(200).json({ reviews: reviews });
-    } catch (err) {
-        console.log("Error: " + err);
-        res.status(500).json({ message: "Server have some problem" });
-    }
-};
+//         res.status(200).json({ reviews: reviews });
+//     } catch (err) {
+//         console.log("Error: " + err);
+//         res.status(500).json({ message: "Server have some problem" });
+//     }
+// };
