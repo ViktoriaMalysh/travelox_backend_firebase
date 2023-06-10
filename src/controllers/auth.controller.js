@@ -5,94 +5,92 @@ const bcrypt = require("bcrypt");
 
 module.exports.signUp = async function (req, res) {
   try {
-    const { firstName, lastName, email, password } = req.body.user;
+    const { firstName, lastName, email, password } = req.body;
 
-    const checkUserEmail = await checkEmail(email);
+    const isAlreadyExistEmail = await checkEmail(email);
 
-    if (checkUserEmail) {
-      res.status(404).json({
+    if (isAlreadyExistEmail) {
+      return res.status(404).json({
         message: "Email already taken",
       });
-    } else {
-      await User.sync({ alter: true });
-
-      const salt = bcrypt.genSaltSync(10);
-      const bcryptPassword = bcrypt.hashSync(password, salt);
-
-      const new_user = await User.create({
-        firstName: firstName,
-        lastName: lastName,
-        email: email,
-        password: bcryptPassword,
-      });
-      await new_user.save();
-
-      const token = jwt.sign(
-        {
-          email: email,
-          password: bcryptPassword,
-          id: new_user.dataValues.id,
-        },
-        keys.jwt,
-        { expiresIn: 300 }
-      );
-
-      res.status(200).json({
-        token: token,
-
-        userDetails: {
-          id: new_user.dataValues.id,
-          firstName: new_user.dataValues.firstName,
-          lastName: new_user.dataValues.lastName,
-          email: new_user.dataValues.email,
-        },
-      });
     }
-  } catch (err) {
-    console.log("[Error]: " + err);
-    res.status(500).json({
-      message: err,
+
+    await User.sync({ alter: true });
+
+    const salt = bcrypt.genSaltSync(10);
+    const bcryptPassword = bcrypt.hashSync(password, salt);
+
+    const token = jwt.sign(
+      {
+        email: email,
+        firstName: firstName,
+      },
+      keys.jwt,
+      { expiresIn: 300 }
+    );
+
+    const newUser = await User.create({
+      firstName: firstName,
+      lastName: lastName,
+      email: email,
+      password: bcryptPassword,
+      token: token,
+    });
+    await newUser.save();
+
+    return res.json({
+      token: token,
+      userDetails: {
+        id: newUser.dataValues.id,
+        firstName: newUser.dataValues.firstName,
+        lastName: newUser.dataValues.lastName,
+        email: newUser.dataValues.email,
+      },
+    });
+  } catch (exeption) {
+    console.log("[Error]: " + exeption);
+    return res.status(500).json({
+      message: exeption,
     });
   }
 };
 
 module.exports.signIn = async function (req, res) {
   try {
-    const { email, password } = req.body.user;
+    const { email, password } = req.body;
 
     const user = await checkEmail(email);
 
     const checkPassword = bcrypt.compareSync(password, user.password);
 
     if (!checkPassword) {
-      res.status(404).json({
+      return res.status(404).json({
         message: "Wrong password",
       });
-    } else {
-      const token = jwt.sign(
-        {
-          email: user.email,
-          password: user.password,
-          id: user.id,
-        },
-        keys.jwt,
-        { expiresIn: 300 }
-      );
-
-      res.status(200).json({
-        token: token,
-        userDetails: {
-          id: user.id,
-          firstName: user.firstName,
-          lastName: user.lastName,
-          email: user.email,
-        },
-      });
     }
-  } catch (err) {
-    console.log("[Error]:", err);
-    res.status(500).json({
-      message: err,
+
+    const token = jwt.sign(
+      {
+        email: user.email,
+        firstName: user.firstName,
+      },
+      keys.jwt,
+      { expiresIn: 300 }
+    );
+
+    return res.json({
+      token: token,
+      userDetails: {
+        id: user.id,
+        firstName: user.firstName,
+        lastName: user.lastName,
+        email: user.email,
+      },
+    });
+  } catch (exeption) {
+    console.log("[Error]:", exeption);
+    return res.status(500).json({
+      message: exeption,
     });
   }
 };

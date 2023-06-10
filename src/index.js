@@ -11,11 +11,12 @@ dotenv.config();
 const app = express();
 
 const {
-  // authRouter,
+  authRouter,
   // userRouter,
   apiRouter,
   checkoutRouter,
 } = require("./routes");
+const auth = require("./middlewares/auth");
 
 // const { tokenValidationMiddleware } = require('./middlewares/user');
 
@@ -43,10 +44,12 @@ app.use(require("morgan")("dev"));
 // const doc = new PDFDocument();
 
 // Routes
-// app.use("/auth", authRouter);
+app.use("/auth", authRouter);
 // app.use("/users", userRouter);
 
-app.use("/api", apiRouter);
+app.use("/api", 
+// auth,
+ apiRouter);
 
 app.use("/checkout", checkoutRouter);
 // app.use('/posts', tokenValidationMiddleware, postRouter);

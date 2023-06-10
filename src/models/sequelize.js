@@ -1,6 +1,6 @@
 const { Sequelize, Model, DataTypes } = require("sequelize");
 
-const sequelize = new Sequelize("montanadb", "admin", "admin", {
+const sequelize = new Sequelize("travelox_db", "admin", "admin", {
  host: "localhost",
  dialect: "postgres",
 });

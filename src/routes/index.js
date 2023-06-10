@@ -1,10 +1,10 @@
-// const authRouter = require("./user");
+const authRouter = require("./user");
 // const userRouter = require("./user.route");
 const apiRouter = require('./api-data.route');
 const checkoutRouter = require('./checkout.route');
 
 module.exports = {
-  //   authRouter,
+    authRouter,
   //   userRouter,
   apiRouter,
   checkoutRouter,
